@@ -29,8 +29,7 @@ class DatabaseHelper {
   CREATE TABLE servicos(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome VARCHAR(255) NOT NULL, 
-      data DATE NULL,
-      hora DATE NULL,
-      tipoServicos VARCHAR(255) NOT NULL
+      data_hora DATE NOT NULL,
+      tipoServicos VARCHAR(255) NOT NULL)
   ''';
 }

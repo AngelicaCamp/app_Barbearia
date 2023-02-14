@@ -6,7 +6,9 @@ import '../model/tipoServico.dart';
 import '../model/valor.dart';
 
 class PageServico extends StatefulWidget {
-  const PageServico({Key? key}) : super(key: key);
+  const PageServico({this.updateListServices});
+
+  final updateListServices;
 
   @override
   State<PageServico> createState() => _PageServicoState();
@@ -21,8 +23,7 @@ class _PageServicoState extends State<PageServico> {
 
   DateTime? date;
   DateTime? newTime;
-  DateTime? dataTimeStamp;
-  DateTime? horaTimeStamp;
+  DateTime date_time = DateTime.now();
 
   var _dropdownValueService;
   final GlobalKey<FormFieldState> _keyDropdownValueService = GlobalKey();
@@ -185,7 +186,7 @@ class _PageServicoState extends State<PageServico> {
   }
 
   createDropdownButtonFormFieldService() {
-    return DropdownButtonFormField<String>(
+    return DropdownButtonFormField<dynamic>(
         decoration: InputDecoration(
           hintText: 'Serviço',
           suffixIcon: IconButton(
@@ -200,10 +201,10 @@ class _PageServicoState extends State<PageServico> {
         value: null,
         items: [
           for (var servico in tiposServicos) ...[
-            DropdownMenuItem(value: servico.value, child: Text(servico.value))
+            DropdownMenuItem(value: servico, child: Text(servico.value))
           ]
         ],
-        onChanged: (String? value) {
+        onChanged: (dynamic? value) {
           _dropdownValueService = value;
         });
   }
@@ -289,8 +290,8 @@ class _PageServicoState extends State<PageServico> {
       if (mounted) {
         setState(() {
           _dateController.text = '${date.day}/${date.month}/${date.year}';
-          dataTimeStamp =
-              DateTime.fromMicrosecondsSinceEpoch(date.microsecondsSinceEpoch);
+          date_time = DateTime(date.year, date.month, date.day, date_time.hour,
+              date_time.minute);
         });
       }
     }
@@ -305,9 +306,10 @@ class _PageServicoState extends State<PageServico> {
     if (newTime != null) {
       if (mounted) {
         setState(() {
-          _timeController.text = '${newTime.hour}:${newTime.minute}';
-          horaTimeStamp =
-              DateTime.fromMillisecondsSinceEpoch(newTime.hour, isUtc: true);
+          _timeController.text =
+              '${newTime.hour}:${newTime.minute.toString().length < 2 ? '0${newTime.minute}' : newTime.minute}';
+          date_time = DateTime(date_time.year, date_time.month, date_time.day,
+              newTime.hour, newTime.minute);
         });
       }
     }
@@ -318,22 +320,39 @@ class _PageServicoState extends State<PageServico> {
       children: [
         Expanded(
           child: Padding(
-            padding: EdgeInsets.only(top: 8.0),
+            padding: const EdgeInsets.only(top: 8.0),
             child: ElevatedButton(
-              onPressed: () async {
-                addService();
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffB1672E)),
+              onPressed: () {
+                var form = _keyForm.currentState;
+                if (form?.validate() ?? false) {
+                  addService();
+                }
               },
-              child: const Text('Agendar'),
+              child: const Text(
+                'Agendar',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Padding(
-            padding: EdgeInsets.only(top: 8.0),
+            padding: const EdgeInsets.only(top: 8.0),
             child: ElevatedButton(
-              onPressed: null,
-              child: Text('Cancelar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xffDCDCDC),
+              ),
+              child: const Text('Cancelar',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black)),
+              onPressed: () {
+                _resetForm();
+              },
             ),
           ),
         ),
@@ -341,13 +360,29 @@ class _PageServicoState extends State<PageServico> {
     );
   }
 
-  addService() {
+  addService() async {
     final service = Servico(
         nomeCliente: _nameController.text,
-        data: dataTimeStamp!,
-        hora: horaTimeStamp!,
+        data_hora: date_time,
         tipoServico: _dropdownValueService);
 
-    _servicoDbHelper.insertService(service);
+    await _servicoDbHelper.insertService(service);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Serviço foi agendado!"),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    _resetForm();
+    await widget.updateListServices();
+  }
+
+  _resetForm() {
+    setState(() {
+      _keyForm.currentState?.reset();
+      _nameController.clear();
+      _dateController.clear();
+      _timeController.clear();
+    });
   }
 }

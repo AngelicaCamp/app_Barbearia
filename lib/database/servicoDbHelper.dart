@@ -26,7 +26,7 @@ class ServicoDbHelper {
   // list services
   Future<List<Servico>> listServices() async {
     Database db = await dbHelper.database;
-    var services = await db.query('servicos', where: 'servicos', orderBy: 'id');
+    var services = await db.query('servicos', orderBy: 'id');
     List<Servico> servicesList = services.isNotEmpty
         ? services.map((e) => Servico.fromMap(e)).toList()
         : [];
