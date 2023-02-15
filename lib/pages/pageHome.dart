@@ -3,6 +3,8 @@ import 'package:app_barbearia/pages/pageContato.dart';
 import 'package:app_barbearia/pages/pageServico.dart';
 import 'package:flutter/material.dart';
 
+import '../model/servico.dart';
+
 class PageHome extends StatefulWidget {
   const PageHome({Key? key}) : super(key: key);
 
@@ -11,6 +13,8 @@ class PageHome extends StatefulWidget {
 }
 
 class _PageHomeState extends State<PageHome> {
+  Servico? servico;
+
   @override
   Widget build(BuildContext context) {
     return createDefaultTabController();
@@ -22,11 +26,12 @@ class _PageHomeState extends State<PageHome> {
       child: Scaffold(
         backgroundColor: const Color(0xffF5F5F5),
         appBar: AppBar(
+          toolbarHeight: 90,
           backgroundColor: const Color(0xff191B1A),
           title: Image.asset(
             'assets/images/logo.png',
-            height: 40.0,
-            width: 50.0,
+            height: 70.0,
+            width: 70.0,
             fit: BoxFit.cover,
           ),
           actions: [
@@ -37,7 +42,8 @@ class _PageHomeState extends State<PageHome> {
                   FocusScope.of(context).requestFocus(FocusNode());
                 });
               },
-              icon: const Icon(Icons.info, color: Color(0xffFE7C3F)),
+              icon: const Icon(Icons.contact_page,
+                  color: Color(0xffFE7C3F), size: 30),
             ),
           ],
         ),
@@ -47,7 +53,7 @@ class _PageHomeState extends State<PageHome> {
               labelColor: Colors.black,
               tabs: [
                 Tab(text: 'SERVIÇOS'),
-                Tab(text: 'AGENDAMENTOS'),
+                Tab(text: 'AGENDAMENTO'),
               ],
             ),
             Expanded(

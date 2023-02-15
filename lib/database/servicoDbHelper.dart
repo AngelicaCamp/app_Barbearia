@@ -18,9 +18,10 @@ class ServicoDbHelper {
   }
 
   // update service
-  Future<void> updateService(int id) async {
+  Future<int> updateService(Servico servico) async {
     Database db = await dbHelper.database;
-    var services = await db.query('servicos', where: 'id=?', whereArgs: [id]);
+    return await db.update('servicos', servico.toMap(),
+        where: 'id=?', whereArgs: [servico.id]);
   }
 
   // list services
